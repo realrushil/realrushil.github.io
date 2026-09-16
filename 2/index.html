@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Project 2</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+    </style>
+</head>
+<body>
+    <p><b>Part 1: Single-scale alignment </b></p>
+    <p>These are the single-scale alignment results. I utilized the NCC metric to
+    find the best alignment of the 3 channels. I calculated the NCC metric using the 
+    formula provided in the spec: namely, by taking the dot product between the two mean-subtracted, normalized images. Then, to actually search for the alignment,
+    I utilized a naive window search strategy for these single-scale jpegs. Basically,
+    I ran a double for loop over every (x, y) offset from [-15, +15] (for both x and y) and saved the offset that produced the highest NCC. </p>
+    <p>Additionally, I found that including the border artifacts from the original datset yielded inaccurate results. So, I added two preprocessing steps, one before the thirds split and one after. Before the thirds split, I cropped the left and right margins off (10%) and after the split I cropped the top and bottom off each of the three images by 10% as well. This removed most of the black border from the resulting images and improved the results.</p>
+
+    <div>
+        <img src="./media/cathedral.jpg" width="400">
+        <p>cathedral.jpg: green (5, 2), red (12, 3)</p>
+    </div>
+    <div>
+        <img src="./media/monastery.jpg" width="400">
+        <p>monastery.jpg: green (-3, 2), red (3, 2)</p>
+    </div>
+    <div>
+        <img src="./media/tobolsk.jpg" width="400">
+        <p>tobolsk.jpg: green (3, 3), red (6, 3)</p>
+    </div>
+    <p><b>Part 2: Multi-scale pyramid alignment</b></p>
+    <p>These are the multi-scale pyramid results. Since the tif images are bigger, I implemented the pyramid search strategy for aligngment as the naive method from Part 1 would take too long here. (The rest of the pipeline like preprocessing and NCC metric was kept the same). </p>
+
+    <p>I implemented the pyramid search recursively. The base case is basically when the image is smaller than 300 pixels then it just runs the naive alignment search with a window of [-15, +15]. For the recursive step, I scaled the channels down by a factor of 2 and then called align_pyramid on this smaller problem. On the way back up when the function is returning after it has reached the base case, I take the offset returned by the recursive call and then only search close by the scaled version of this offset. This reduces the amount of searching we have to do dramatically as the problem becomes logarithmic instead of linearly scaling with image size. </p>
+
+    <p>All the images looked fine except for emir.tif. I think the red channel was very inaccurate for this photo because the emir's clothes are bright blue, so the red channel looks very different from the blue channel in terms of raw brightness, and using NCC on raw pixel values picks the wrong offset.</p>
+
+    <p>The 3 custom images I chose were the kapri, itali, and mosque images</p>
+
+    <div>
+        <img src="./media/church.jpg" width="400">
+        <p>church.tif: green (25, 4), red (58, -4)</p>
+    </div>
+    <div>
+        <img src="./media/harvesters.jpg" width="400">
+        <p>harvesters.tif: green (59, 16), red (124, 13)</p>
+    </div>
+    <div>
+        <img src="./media/icon.jpg" width="400">
+        <p>icon.tif: green (41, 17), red (89, 23)</p>
+    </div>
+    <div>
+        <img src="./media/ilemselga.jpg" width="400">
+        <p>ilemselga.tif: green (40, 7), red (130, 11)</p>
+    </div>
+    <div>
+        <img src="./media/melons.jpg" width="400">
+        <p>melons.tif: green (81, 10), red (178, 13)</p>
+    </div>
+    <div>
+        <img src="./media/religous_painting.jpg" width="400">
+        <p>religous_painting.tif: green (27, 3), red (68, 7)</p>
+    </div>
+    <div>
+        <img src="./media/self_portrait.jpg" width="400">
+        <p>self_portrait.tif: green (78, 29), red (176, 37)</p>
+    </div>
+    <div>
+        <img src="./media/siren.jpg" width="400">
+        <p>siren.tif: green (49, -6), red (95, -25)</p>
+    </div>
+    <div>
+        <img src="./media/three_generations.jpg" width="400">
+        <p>three_generations.tif: green (53, 14), red (112, 11)</p>
+    </div>
+    <div>
+        <img src="./media/wharf.jpg" width="400">
+        <p>wharf.tif: green (15, -7), red (82, -16)</p>
+    </div>
+    <div>
+        <img src="./media/kapri.jpg" width="400">
+        <p>kapri.tif: green (40, -13), red (102, -10)</p>
+    </div>
+    <div>
+        <img src="./media/itali.jpg" width="400">
+        <p>itali.tif: green (38, 21), red (76, 35)</p>
+    </div>
+    <div>
+        <img src="./media/mosque.jpg" width="400">
+        <p>mosque.tif: green (26, 10), red (70, 11)</p>
+    </div>
+    <div>
+        <img src="./media/emir.jpg" width="400">
+        <p>emir.tif: green (49, 24), red (95, -249)</p>
+    </div>
+</body>
+</html>
