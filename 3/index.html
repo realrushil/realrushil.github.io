@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Project 3</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+    </style>
+</head>
+<body>
+    <p><b>Part 1.1: Convolutions from Scratch</b></p>
+    <pre>
+def convolve_4loop(image, kernel):
+    ih, iw = image.shape
+    kh, kw = kernel.shape
+
+    padded = np.zeros((ih + 2*kh - 2, iw + 2*kw - 2))
+    padded[kh - 1 : kh - 1 + ih, kw - 1 : kw - 1 + iw] = image
+
+    flipped = np.flip(kernel)
+
+    out = np.zeros((ih + kh - 1, iw + kw - 1))
+
+    for i in range(out.shape[0]):
+        for j in range(out.shape[1]):
+
+            product = 0
+
+            for x in range(kh):
+                for y in range(kw):
+                    product += padded[i + x, j + y] * flipped[x, y]
+
+            out[i, j] = product
+
+    return out
+
+def convolve_2loop(image, kernel):
+    ih, iw = image.shape
+    kh, kw = kernel.shape
+
+    padded = np.zeros((ih + 2*kh - 2, iw + 2*kw - 2))
+    padded[kh - 1 : kh - 1 + ih, kw - 1 : kw - 1 + iw] = image
+
+    flipped = np.flip(kernel)
+
+    out = np.zeros((ih + kh - 1, iw + kw - 1))
+
+    for i in range(out.shape[0]):
+        for j in range(out.shape[1]):
+
+            out[i, j] = np.sum(padded[i:i + kh, j:j + kw] * flipped)
+
+    return out
+    </pre>
+    <p>Both versions match scipy.signal.convolve2d. The 4 loop version took 1.49 s, the 2 loop version took 0.18 s, and scipy took 0.009 s.</p>
+    <p>For boundaries I pad with zeros, which is the same as scipy's default.</p>
+    <div>
+        <img src="./media/1_1_box_4loop.png" width="400">
+        <p>Box filter (4 loops)</p>
+    </div>
+    <div>
+        <img src="./media/1_1_box_2loop.png" width="400">
+        <p>Box filter (2 loops)</p>
+    </div>
+    <div>
+        <img src="./media/1_1_box_scipy.png" width="400">
+        <p>Box filter (scipy)</p>
+    </div>
+    <div>
+        <img src="./media/1_1_selfie_Dx.png" width="400">
+        <p>D_x</p>
+    </div>
+    <div>
+        <img src="./media/1_1_selfie_Dy.png" width="400">
+        <p>D_y</p>
+    </div>
+    <p><b>Part 1.2: Finite Difference Operator</b></p>
+    <p>I went with a threshold of 0.25. Lower thresholds picked up a lot of noise in the grass and higher thresholds started to break up the tripod legs and the buildings in the back.</p>
+    <div>
+        <img src="./media/1_2_dx.png" width="400">
+        <p>Partial derivative in x</p>
+    </div>
+    <div>
+        <img src="./media/1_2_dy.png" width="400">
+        <p>Partial derivative in y</p>
+    </div>
+    <div>
+        <img src="./media/1_2_grad_mag.png" width="400">
+        <p>Gradient magnitude</p>
+    </div>
+    <div>
+        <img src="./media/1_2_edges_binarized.png" width="400">
+        <p>Binarized edges</p>
+    </div>
+    <p><b>Part 1.3: Derivative of Gaussian (DoG) Filter</b></p>
+    <div>
+        <img src="./media/1_3_gaussian_filter.png" width="400">
+        <p>Gaussian filter</p>
+    </div>
+    <div>
+        <img src="./media/1_3_dog_filter_x.png" width="400">
+        <p>DoG filter (x)</p>
+    </div>
+    <div>
+        <img src="./media/1_3_dog_filter_y.png" width="400">
+        <p>DoG filter (y)</p>
+    </div>
+    <p>Compared to 1.2 the edges are thicker and smoother, and almost all of the grass noise is gone.</p>
+    <div>
+        <img src="./media/1_3_blurred.png" width="400">
+        <p>Gaussian blurred</p>
+    </div>
+    <div>
+        <img src="./media/1_3_blurred_edges.png" width="400">
+        <p>Binarized edges (blurred)</p>
+    </div>
+    <div>
+        <img src="./media/1_3_dog_edges.png" width="400">
+        <p>Binarized edges (DoG)</p>
+    </div>
+    <p><b>Part 2.1: Image Sharpening</b></p>
+    <p>A Gaussian blur keeps the low frequencies (the overall shapes and colors) and removes the high frequencies (the fine details and edges). So if I subtract the blurred image from the original I'm left with just the high frequencies. Adding those back on top of the original, scaled by some amount alpha, makes the edges stand out more.</p>
+    <div>
+        <img src="./media/2_1_taj_blurred.png" width="400">
+        <p>Taj Mahal: blurred</p>
+    </div>
+    <div>
+        <img src="./media/2_1_taj_highfreq.png" width="400">
+        <p>Taj Mahal: high frequencies</p>
+    </div>
+    <div>
+        <img src="./media/2_1_taj_sharpened_a1.png" width="400">
+        <p>Taj Mahal: sharpened (alpha = 1)</p>
+    </div>
+    <div>
+        <img src="./media/2_1_taj_sharpened_a2.png" width="400">
+        <p>Taj Mahal: sharpened (alpha = 2)</p>
+    </div>
+    <div>
+        <img src="./media/2_1_taj_sharpened_a4.png" width="400">
+        <p>Taj Mahal: sharpened (alpha = 4)</p>
+    </div>
+    <div>
+        <img src="./media/2_1_selfie_original.png" width="400">
+        <p>Selfie: original</p>
+    </div>
+    <div>
+        <img src="./media/2_1_selfie_sharpened_a1.png" width="400">
+        <p>Selfie: sharpened (alpha = 1)</p>
+    </div>
+    <p><b>Part 2.2: Hybrid Images</b></p>
+    <p>I picked the cutoffs by trying a few combinations and checking which one looked best both up close and far away. I ended up with sigma = 3.5 for Derek's high pass and sigma = 6 for Nutmeg's low pass. With a larger sigma for Derek too much of his face came through and you couldn't see Nutmeg even from far away.</p>
+    <div>
+        <img src="./media/2_2_derek_original.png" width="400">
+        <p>Derek: original</p>
+    </div>
+    <div>
+        <img src="./media/2_2_nutmeg_original.png" width="400">
+        <p>Nutmeg: original</p>
+    </div>
+    <div>
+        <img src="./media/2_2_derek_aligned.png" width="400">
+        <p>Derek: aligned</p>
+    </div>
+    <div>
+        <img src="./media/2_2_nutmeg_aligned.png" width="400">
+        <p>Nutmeg: aligned</p>
+    </div>
+    <div>
+        <img src="./media/2_2_fft_derek.png" width="400">
+        <p>Derek: Fourier transform</p>
+    </div>
+    <div>
+        <img src="./media/2_2_fft_nutmeg.png" width="400">
+        <p>Nutmeg: Fourier transform</p>
+    </div>
+    <div>
+        <img src="./media/2_2_derek_highpass.png" width="400">
+        <p>Derek: high pass</p>
+    </div>
+    <div>
+        <img src="./media/2_2_fft_derek_highpass.png" width="400">
+        <p>Derek high pass: Fourier transform</p>
+    </div>
+    <div>
+        <img src="./media/2_2_nutmeg_lowpass.png" width="400">
+        <p>Nutmeg: low pass</p>
+    </div>
+    <div>
+        <img src="./media/2_2_fft_nutmeg_lowpass.png" width="400">
+        <p>Nutmeg low pass: Fourier transform</p>
+    </div>
+    <div>
+        <img src="./media/2_2_derek_nutmeg_hybrid.png" width="400">
+        <p>Derek + Nutmeg hybrid</p>
+    </div>
+    <div>
+        <img src="./media/2_2_fft_hybrid.png" width="400">
+        <p>Hybrid: Fourier transform</p>
+    </div>
+    <div>
+        <img src="./media/2_2_selfie_original.png" width="400">
+        <p>Selfie: original</p>
+    </div>
+    <div>
+        <img src="./media/2_2_derek_original.png" width="400">
+        <p>Derek: original</p>
+    </div>
+    <div>
+        <img src="./media/2_2_selfie_derek_hybrid.png" width="400">
+        <p>Selfie + Derek hybrid</p>
+    </div>
+    <div>
+        <img src="./media/2_2_lion_original.png" width="400">
+        <p>Lion: original</p>
+    </div>
+    <div>
+        <img src="./media/2_2_dog_original.png" width="400">
+        <p>Dog: original</p>
+    </div>
+    <div>
+        <img src="./media/2_2_lion_dog_hybrid.png" width="400">
+        <p>Lion + Dog hybrid</p>
+    </div>
+    <p><b>Part 2.3 + 2.4: Gaussian and Laplacian Stacks, Multiresolution Blending</b></p>
+    <div>
+        <img src="./media/2_3_apple_gaussian_stack.png" width="800">
+        <p>Apple: Gaussian stack</p>
+    </div>
+    <div>
+        <img src="./media/2_3_apple_laplacian_stack.png" width="800">
+        <p>Apple: Laplacian stack</p>
+    </div>
+    <div>
+        <img src="./media/2_3_orange_gaussian_stack.png" width="800">
+        <p>Orange: Gaussian stack</p>
+    </div>
+    <div>
+        <img src="./media/2_3_orange_laplacian_stack.png" width="800">
+        <p>Orange: Laplacian stack</p>
+    </div>
+    <div>
+        <img src="./media/2_3_figure_3_42.png" width="400">
+        <p>Figure 3.42</p>
+    </div>
+    <div>
+        <img src="./media/2_4_faceswap_selfie.png" width="400">
+        <p>Selfie</p>
+    </div>
+    <div>
+        <img src="./media/2_4_faceswap_derek.png" width="400">
+        <p>Derek</p>
+    </div>
+    <div>
+        <img src="./media/2_4_faceswap_result.png" width="400">
+        <p>Blended</p>
+    </div>
+    <div>
+        <img src="./media/2_4_taj_original.png" width="400">
+        <p>Taj Mahal</p>
+    </div>
+    <div>
+        <img src="./media/2_4_hubble.png" width="400">
+        <p>Hubble Deep Field</p>
+    </div>
+    <div>
+        <img src="./media/2_4_taj_hubble_blend.png" width="400">
+        <p>Blended</p>
+    </div>
+</body>
+</html>
