@@ -12,6 +12,8 @@
 <body>
     <h1>Image Warping and Mosaicing</h1>
 
+    <h2>Part A: Image Warping and Mosaicing</h2>
+
     <p><b>A.1: Shoot the Pictures</b></p>
     <div>
         <img src="./media/subway_14th_source_0.jpg" width="300">
@@ -124,5 +126,74 @@ Street, bottom image -> top image
         <p>Street</p>
     </div>
     <p>I keep the middle image fixed (the second one when there are only two) and warp the others into its frame with bilinear warping, on a canvas big enough to fit all the warped corners. Each image gets a weight that is 1 at its center and falls off linearly to 0 at its edges, warped along with the image. The mosaic is the weighted average of the images, so the seams fade out instead of one image overwriting another.</p>
+
+    <h2>Part B: Feature Matching for Autostitching</h2>
+
+    <p><b>B.1: Harris Corner Detection</b></p>
+    <div>
+        <img src="./media/b_subway_harris.jpg" width="600">
+        <p>All Harris corners</p>
+    </div>
+    <div>
+        <img src="./media/b_subway_anms.jpg" width="600">
+        <p>500 corners kept by ANMS</p>
+    </div>
+
+    <p><b>B.2: Feature Descriptor Extraction</b></p>
+    <div>
+        <img src="./media/b_subway_descriptors.jpg" width="900">
+        <p>40x40 windows and their bias/gain normalized 8x8 descriptors</p>
+    </div>
+
+    <p><b>B.3: Feature Matching</b></p>
+    <div>
+        <img src="./media/b_subway_14th_matches_0_1.jpg" width="900">
+        <p>Subway, left and middle images</p>
+    </div>
+    <div>
+        <img src="./media/b_subway_14th_matches_1_2.jpg" width="900">
+        <p>Subway, middle and right images</p>
+    </div>
+    <div>
+        <img src="./media/b_cafe_deli_matches_0_1.jpg" width="900">
+        <p>Deli</p>
+    </div>
+    <div>
+        <img src="./media/b_street_east2nd_matches_0_1.jpg" width="900">
+        <p>Street</p>
+    </div>
+
+    <p><b>B.4: RANSAC for Robust Homography</b></p>
+    <div>
+        <img src="./media/b_subway_14th_ransac_0_1.jpg" width="900">
+        <p>Subway, left and middle images</p>
+    </div>
+    <div>
+        <img src="./media/b_subway_14th_ransac_1_2.jpg" width="900">
+        <p>Subway, middle and right images</p>
+    </div>
+    <div>
+        <img src="./media/b_cafe_deli_ransac_0_1.jpg" width="900">
+        <p>Deli</p>
+    </div>
+    <div>
+        <img src="./media/b_street_east2nd_ransac_0_1.jpg" width="900">
+        <p>Street</p>
+    </div>
+    <div>
+        <img src="./media/subway_14th_mosaic.jpg" width="450">
+        <img src="./media/b_subway_14th_mosaic_auto.jpg" width="450">
+        <p>Subway: manual, automatic</p>
+    </div>
+    <div>
+        <img src="./media/cafe_deli_mosaic.jpg" width="350">
+        <img src="./media/b_cafe_deli_mosaic_auto.jpg" width="350">
+        <p>Deli: manual, automatic</p>
+    </div>
+    <div>
+        <img src="./media/street_east2nd_mosaic.jpg" width="350">
+        <img src="./media/b_street_east2nd_mosaic_auto.jpg" width="350">
+        <p>Street: manual, automatic</p>
+    </div>
 </body>
 </html>
